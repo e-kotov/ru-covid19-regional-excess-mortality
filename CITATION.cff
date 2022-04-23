@@ -1,0 +1,15 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  SPATIAL MODELLING OF SOCIO-ECONOMIC FACTORS OF COVID-19 MORTALITY IN RUSSIA: data, R code
+  and plots
+message: Please cite this dataset using these metadata.
+type: dataset
+authors:
+  - given-names: Egor
+    family-names: Kotov
+    email: kotov.egor@gmail.com
+    orcid: 'https://orcid.org/0000-0001-6690-5345'
+    affiliation: HSE University
