@@ -11,6 +11,9 @@ plots) and will be published on GitHub as part of the paper “SPATIAL
 MODELLING OF KEY REGIONAL-LEVEL FACTORS OF COVID-19 MORTALITY IN
 RUSSIA”.
 
+You can see the published html version of the paper supplements at
+<https://e-kotov.github.io/ru-covid19-regional-excess-mortality/>.
+
 ## Contents of the supplementray materials
 
 -   `/codebook/codebook.xlsx` - contains description of the variables
