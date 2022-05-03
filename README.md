@@ -8,7 +8,8 @@
 
 This repository contains the supplementary materials (code, data and
 plots) and will be published on GitHub as part of the paper “SPATIAL
-MODELLING OF SOCIO-ECONOMIC FACTORS OF COVID-19 MORTALITY IN RUSSIA”.
+MODELLING OF KEY REGIONAL-LEVEL FACTORS OF COVID-19 MORTALITY IN
+RUSSIA”.
 
 ## Contents of the supplementray materials
 
@@ -39,6 +40,8 @@ MODELLING OF SOCIO-ECONOMIC FACTORS OF COVID-19 MORTALITY IN RUSSIA”.
 
 -   `/plots/` - folder with plots exported for the final paper
 
+-   `/summaries/` - folder with model summaries and coefficients
+
 ## Reproducing the analysis
 
 If you want to re-run the analysis from scratch:
@@ -63,5 +66,5 @@ will be added once the paper is published
 
 ## KEY WORDS
 
-COVID-19, spatial models, socio-economic factors, excess mortality,
-Russian regions
+COVID-19, spatial models, socio-economic factors, climatic factors,
+excess mortality, Russian regions

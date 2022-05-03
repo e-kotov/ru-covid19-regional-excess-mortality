@@ -1,0 +1,621 @@
+---
+title: "COVID Paper key plots and tables"
+authors:
+- name: NAMES_AND_AFFILIATIONS_WILL_BE_RELEASED_WHEN_THE_PAPER_IS_ACCEPTED
+output:
+  html_document: 
+    theme: readable
+    toc: yes
+    number_sections: yes
+    code_folding: show
+    toc_depth: 5
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+    self_contained: no
+  word_document:
+    toc: yes
+    toc_depth: '5'
+  pdf_document: 
+    toc: yes
+    toc_depth: 5
+    keep_tex: yes
+editor_options:
+  chunk_output_type: console
+---
+
+```{=html}
+<style type="text/css">
+.main-container {
+  max-width: 100% !important;
+  margin: auto;
+}
+</style>
+```
+# Introduction
+
+Author names will be added after peer-review.
+
+All code is visible for reference.
+Some custom functions are saved in `/R/functions.R`.
+
+## Loading packages
+
+```{r setup, include=T, cache = F, echo=TRUE, message=FALSE, warning=FALSE}
+# preinstall key packages
+if( !"renv" %in% installed.packages()[,'Package'] )  { install.packages("renv") }
+if( !"here" %in% installed.packages()[,'Package'] )  { install.packages("here") }
+if( !"rmarkdown" %in% installed.packages()[,'Package'] )  { install.packages("rmarkdown") }
+
+# install other pac
+source(here::here("R", "functions.R"))
+
+knitr::opts_chunk$set(cache = FALSE)
+
+knitr::opts_chunk$set(echo = TRUE) 
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(dpi = 300)
+knitr::opts_chunk$set(fig.width = 10)
+knitr::opts_chunk$set(fig.height = 8)
+
+
+# Set so that long lines in R will be wrapped:
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60), tidy=TRUE)
+
+
+invisible(lapply(eval(packages_to_load), require, character.only = TRUE))
+```
+
+## Loading data
+
+Loading region boundaries with attributes and spatial weights matrix.
+
+The matrix of spatial neighbours for the spatial autocorrelation test and the resulting spatial models were created based on region boundary polygons from [OpenStreetMap](https://www.openstreetmap.org) (OpenStreetMap contributors 2017) with [GeoDa](https://geodacenter.github.io) software (Anselin et. al 2006) using first-order queen contiguity.
+Regions without neighbours (such as Kaliningrad Region and Sakhalin Region) were manually connected to 2-3 closest regions .
+
+```{r load_data, include=TRUE, results='hide'}
+regions_sf <- here::here("data", "region_borders_with_data.gpkg") %>% st_read(dsn = ., quiet = TRUE)
+
+# simplify geometry for faster map plotting
+regions_sf <- st_simplify(regions_sf, dTolerance = 1000)
+
+# calculate population density
+regions_sf <- regions_sf %>% dplyr::mutate(Population_Density = Population / Region_Area_km2 )
+
+OKTMO_NUM <- as.integer(regions_sf$OKTMO_NUM)
+nb <- here::here("data", "region_borders_with_data.gal") %>% read.gal(file = ., region.id = OKTMO_NUM)
+W <- nb2listw(nb, style = "W")
+
+codebook <- read_excel(here::here("codebook", "codebook.xlsx")) %>% setDT()
+
+codebook[ , variable_name_transformed := variable_name, ]
+codebook[ log_transform_recommended == "yes", variable_name_transformed := paste0(variable_name, "_log"), ]
+all_x_vars <- codebook[ var_type == "x", variable_name_transformed, ]
+```
+
+Transforming variables that require natural log transformation for better model fit.
+
+Rail Road Density variable is included for reference, but it is not critical for the final model, as it is highly correlated with Road Density.
+Nonetheless, the transformation of Rail Road Density does require an "increment, then log-transform" approach, as the original data contains 0 values due to missing data in OpenStreetMap.
+
+```{r transform_variables, include=T}
+vars_for_log_transform <- codebook[ log_transform_recommended == "yes", variable_name, ]
+
+regions_sf_transformed <- regions_sf %>%
+  mutate_at(vars_for_log_transform, log) %>%
+  rename_at(vars_for_log_transform, ~paste0(vars_for_log_transform, "_log")) %>% 
+  mutate(Rail_Road_Density_log = log(regions_sf$Rail_Road_Density + 1) )
+```
+
+# Preliminary analysis
+
+## Preliminary Correlation and Linear Regresison analisys
+
+The following plots demonstrate the top variables that could explain the `Excess mortality`.
+This illustrates part of the preliminary exploratory data analysis.
+
+**Correlation of Excess Mortality vs all X variables**
+
+*All variables are either close to normally distributed or have been ln-transformed, so the correlation is reliable in the following table.*
+
+The table below is sorted by descending R2 of one-on-one linear models of `Excess mortality` vs corresponding X variable.
+
+```{r correlation_table_y_vs_x}
+cor_table <- correlation_table(regions_sf_transformed)
+DT::datatable(cor_table, options = list(scrollX = TRUE, paging=TRUE))
+```
+
+## Correlation of top X variables
+
+**Correlation of Excess Mortality vs top X variables**
+
+The plot below illustrates how some of the top variables from the table above are related to the `Excess mortality` as well as to each other.
+This illustrates the process of variable selection for the statistical model.
+
+```{r correlation_pairs_top_x, dpi=300, fig.width=10, fig.height=8}
+correlation_pairs_top_x <- yx_vars_correlation_matrix(y_var = "Excess_mortality_apr_feb_per_capita",
+                           x_vars = cor_table[order(-`LM R2`)] %>% head(7) %>% .[, `Variable Name`],
+                            data_sf = regions_sf_transformed)
+correlation_pairs_top_x
+```
+
+# Modelling
+
+We use a standard selection of spatial models.
+Here is a comparison of different spatial econometric model specifications:
+
+![Comparison of Different Spatial Econometric Model Specifications](ext_img/spat_mod_compare.png) *Image source: Vega S.H. and Elhorst J.P. (2015). The Slx Model. Journal of Regional Science, 55(3), 339--363. DOI: [10.1111/jors.12188](https://doi.org/10.1111/jors.12188)*
+
+The code below demonstrates building the best model and can be changed by the reader to use different variables and see how the results change.
+
+## Spatial autocorrelation
+
+Most variables suffer from spatial autocorrelation.
+
+```{r spatial_autocorr}
+y <- var_test_spatial(dataset = regions_sf_transformed, target_var_name = "Excess_mortality_apr_feb_per_capita", weights = W)
+x1 <- var_test_spatial(regions_sf_transformed, target_var_name = "Workers_in_C_EconAct_Share", weights = W)
+x2 <- var_test_spatial(regions_sf_transformed, target_var_name = "Post_Working_Age_Population_Share", weights = W)
+
+three_maps <- (y/x1/x2)
+three_maps
+```
+
+Therefore we may expect the OLS regression to perform poorly.
+However, we will use it as a baseline model.
+
+## Baseline OLS models
+
+We first build a series of OLS models to check our hypothesis for the key human interaction variables.
+
+### M0: Population density and economic activities that require human interaction
+
+We started with the model M0, which takes into account population density (using population density and residential floor per capita variables), employment in economic sectors that require close human interaction (B -- mining, C -- manufacturing, G -- retail and services, P -- education, and in small and medium enterprises in general), and local transportation opportunities and constraints (number of buses and cars per capita).
+
+M0 clearly showed that population density and transportation constraints have no effect on mortality.
+The only two significant variables are the share of employees in manufacturing (C) and retail & services (G), as these are the only variables with confidence intervals that do not cross the zero-line.
+
+The proximity of the confidence interval to zero may be due to the inclusion of insignificant variables in the model, therefore we removed some of these variables starting with the model M4 below.
+
+```{r}
+M0 <- regions_sf_transformed %>% lm(data = .,
+                      formula = Excess_mortality_apr_feb_per_capita ~
+                        Population_Density_log +
+                        Floor_Area_per_capita +
+                        Workers_in_C_EconAct_Share +
+                        Workers_in_G_EconAct_Share +
+                        Workers_in_P_EconAct_Share +
+                        Workers_in_B_EconAct_Share_log +
+                        SME_in_GRDP_Share +
+                        Buses_per_capita_log +
+                        Cars_per_capita_x1000 +
+                        Urban_Population_Share)
+```
+
+```{r}
+resid_panel(M0)
+plot_summs(M0, scale = T, inner_ci_level = .9, plot.distributions = F)
+```
+
+### M1: M0 + Climate
+
+M1 is an extension of M0 with climate variables (temperature and humidity). It was found that temperature does not affect mortality, while the effect of humidity is uncertain and should be tried in further models.
+
+```{r}
+M1 <- regions_sf_transformed %>% lm(data = .,
+                        formula = Excess_mortality_apr_feb_per_capita ~
+                          Population_Density_log +
+                          Floor_Area_per_capita +
+                          Workers_in_C_EconAct_Share +
+                          Workers_in_G_EconAct_Share +
+                          Workers_in_P_EconAct_Share +
+                          Workers_in_B_EconAct_Share_log +
+                          SME_in_GRDP_Share +
+                          Buses_per_capita_log +
+                          Cars_per_capita_x1000 +
+                          Jul_Temp_Mean_10yr +
+                          Jul_Humid_Mean_10yr)
+
+resid_panel(M1)
+plot_summs(M0, M1, scale = T, inner_ci_level = .9, plot.distributions = F,
+           model.names = paste0("M", 0:1))
+```
+
+### M2: M1 + Healthcare
+
+M2 adds the healthcare component (number of doctors per capita). It was found that, depending on the model, the confidence interval may touch the zero mark, but this factor is still worth considering in further models.
+
+```{r}
+M2 <- regions_sf_transformed %>% lm(data = .,
+                            formula = Excess_mortality_apr_feb_per_capita ~
+                              Population_Density_log +
+                              Floor_Area_per_capita +
+                              Workers_in_C_EconAct_Share +
+                              Workers_in_G_EconAct_Share +
+                              Workers_in_P_EconAct_Share +
+                              Workers_in_B_EconAct_Share_log +
+                              SME_in_GRDP_Share +
+                              Jul_Temp_Mean_10yr +
+                              Jul_Humid_Mean_10yr +
+                              Doctors_per_capita_x1000)
+
+resid_panel(M2)
+plot_summs(M0, M1, M2, scale = T, inner_ci_level = .9, plot.distributions = F,
+           model.names = paste0("M", 0:2))
+```
+
+### M3: M2 + Migration and Interregional Transport
+
+M3 adds interregional migration flow and opportunity for the spread of COVID-19 following the Hägerstrand's (1973) spatial diffusion of innovation (via the airport density). It was found that airports have no detectable effect, which suggests that air travel between regions was likely not a significant factor in the COVID-19 spread across Russia, while inter-regional migration is worth considering.
+
+```{r}
+M3 <- regions_sf_transformed %>% lm(data = .,
+                              formula = Excess_mortality_apr_feb_per_capita ~
+                                Population_Density_log +
+                                Floor_Area_per_capita +
+                                Workers_in_C_EconAct_Share +
+                                Workers_in_G_EconAct_Share +
+                                Workers_in_P_EconAct_Share +
+                                Workers_in_B_EconAct_Share_log +
+                                SME_in_GRDP_Share +
+                                Jul_Temp_Mean_10yr +
+                                Jul_Humid_Mean_10yr +
+                                Doctors_per_capita_x1000 +
+                                Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 +
+                                Airport_Density_log)
+
+resid_panel(M3)
+plot_summs(M0, M1, M2, M3, scale = T, inner_ci_level = .9, plot.distributions = F,
+           model.names = paste0("M", 0:3))
+```
+
+### M4: Previous significant variables + Age and Income
+
+With the next model M4, we eliminated the non-significant variables from previous models and added age (as the elderly are the most affected by both the virus and the deterioration of regular medical care) and income (following the hypothesis that in poorer regions the population will ignore the restrictions more frequently as they must provide money for their families). It was found that on its own M4 has almost no significant coefficients, however, it provides information on the potential of individual variables.
+
+Population density expressed as residential floor area per capita proved to be insignificant, as its coefficient in M4 falls almost to zero.
+The coefficients for the share of workers in manufacturing (C) and retail & services (G), the number of doctors per capita, and humidity in M4 and previous models vary slightly but mostly remain significant, suggesting that these two economic domains with intensive and close human interaction are important negative factors of the excess mortality.
+
+```{r}
+M4 <- regions_sf_transformed %>% lm(data = .,
+                                formula = Excess_mortality_apr_feb_per_capita ~
+                                  Floor_Area_per_capita +
+                                  Workers_in_C_EconAct_Share +
+                                  Workers_in_G_EconAct_Share +
+                                  Jul_Humid_Mean_10yr +
+                                  Doctors_per_capita_x1000 +
+                                  Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 +
+                                  Airport_Density_log +
+                                  Post_Working_Age_Population_Share +
+                                  Income_per_capita +
+                                  Population_Below_Living_Wage_Share)
+
+resid_panel(M4)
+plot_summs(M0, M1, M2, M3, M4, scale = T, inner_ci_level = .9, plot.distributions = F,
+           model.names = paste0("M", 0:4))
+```
+
+### M5: Age + Income + Digital Skills and E-commerce
+
+M5 builds on M4 by adding digital skills, the share of e-commerce users and the overall provision of retail businesses.
+In M5 we can see that income expressed as the share of the population with income below the living wage has a high negative impact on excess mortality. This is counterintuitive but may suggest that those households interacted less, as they had no money to spend.
+
+The higher share of e-commerce users, as well as the higher number of retail locations per capita, also had a negative effect, as the reliance on face-to-face contact was lower in regions with high values for these variables. Interestingly, M5 also suggests that a higher share of the population using government services over the Internet somehow negatively affects mortality.
+
+```{r}
+M5 <- regions_sf_transformed %>% lm(data = .,
+                                formula = Excess_mortality_apr_feb_per_capita ~
+                                  Post_Working_Age_Population_Share +
+                                  Income_per_capita +
+                                  Population_Below_Living_Wage_Share +
+                                  Doctors_per_capita_x1000 +
+                                  Salary_Region_to_Country_Ratio +
+                                  Ecommerce_Users_Share +
+                                  Retail_N_per_capita_x1000 +
+                                  Digital_Gov_Serv_Users_Share)
+
+resid_panel(M5)
+plot_summs(M0, M1, M2, M3, M4, M5, scale = T, inner_ci_level = .9, plot.distributions = F,
+           model.names = paste0("M", 0:5))
+```
+
+### M6: Final OLS models
+
+Finally, models M6_C, M6_G and M6_CG are the ultimate models with the most significant variables that demonstrate a noticeable and explainable effect. The difference is that M6_C uses the share of employees in manufacturing (C), while M6_G replaces it with the share in retail and services (G). M6_CG uses the shares in both C and G economic activities.
+
+Clearly, the share of employees in C and G is almost equally important, both according to the models and the logic behind the variables, however with the M6_C model we are able to capture the effect of retail with the number of retail locations per capita and e-commerce.
+M6_G and M6_CG, despite their overall similarity to M6_C, do not reproduce the same effects reliably.
+
+M6 models also suggest that the number of doctors is irrelevant, which makes sense compared to the previous models as this variable had a positive effect on excess mortality, which could only be explained by assuming that contacts through doctors were stimulating additional infections.
+
+```{r}
+M6_C <- regions_sf_transformed %>% lm(data = .,
+                                  formula = Excess_mortality_apr_feb_per_capita ~
+                                    Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 +
+                                    Doctors_per_capita_x1000 +
+                                    Jul_Humid_Mean_10yr +
+                                    Post_Working_Age_Population_Share +
+                                    Retail_N_per_capita_x1000 +
+                                    Workers_in_C_EconAct_Share +
+                                    Ecommerce_Users_Share +
+                                    Population_Below_Living_Wage_Share)
+
+resid_panel(M6_C)
+ols_coefs_up_to_m6c <- plot_summs(M0, M1, M2, M3, M4, M5, M6_C, scale = T, robust = TRUE, inner_ci_level = .9, plot.distributions = F,
+           model.names = c(paste0("M", 0:5), "M6_C") ) + labs(x = "Estimates (z-standardised, robust, CI 95%)")
+ols_coefs_up_to_m6c
+```
+
+```{r}
+M6_G <- regions_sf_transformed %>% lm(data = .,
+                                  formula = Excess_mortality_apr_feb_per_capita ~ 
+                                    Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 +
+                                    Doctors_per_capita_x1000 +
+                                    Jul_Humid_Mean_10yr +
+                                    Post_Working_Age_Population_Share +
+                                    Retail_N_per_capita_x1000 +
+                                    Workers_in_G_EconAct_Share +
+                                    Ecommerce_Users_Share +
+                                    Population_Below_Living_Wage_Share)
+
+resid_panel(M6_G)
+ols_coefs_m6c_vs_m6_g <- plot_summs(M6_C, M6_G, scale = T, robust = TRUE, inner_ci_level = .9, plot.distributions = F,
+           model.names = c("M6_C", "M6_G")) + labs(x = "Estimates (z-standardised, robust, CI 95%)")
+ols_coefs_m6c_vs_m6_g
+```
+
+```{r}
+M6_CG <- regions_sf_transformed %>% lm(data = .,
+                                 formula = Excess_mortality_apr_feb_per_capita ~
+                                   Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 +
+                                   Doctors_per_capita_x1000 +
+                                   Jul_Humid_Mean_10yr +
+                                   Post_Working_Age_Population_Share +
+                                   Retail_N_per_capita_x1000 +
+                                   Workers_in_G_EconAct_Share +
+                                   Ecommerce_Users_Share +
+                                   Workers_in_C_EconAct_Share +
+                                   Population_Below_Living_Wage_Share)
+resid_panel(M6_CG)
+
+ols_coefs_m6cg <- plot_summs(M6_C, M6_G, M6_CG,
+                             scale = T, robust = TRUE, inner_ci_level = .9, plot.distributions = F,
+           model.names = c("M6_C", "M6_G", "M6_CG")) + labs(x = "Estimates (z-standardised, robust, CI 95%)")
+ols_coefs_m6cg
+```
+
+### Compare all models
+
+A statistical summary of all OLS models is provided below. It shows that models M6_CG and M6_C are the best according to most model quality metrics. They have the lowest AICc (corrected Akaike information criterion), highest R-squared and adjusted R-squared, and lowest RMSE (root-mean-square error). Therefore, we used these models and their variables as the best baseline for the spatial extension of the model.
+
+```{r}
+MM <- list(M0, M1, M2, M3, M4, M5, M6_C, M6_G, M6_CG)
+names(MM) <- c("M0", "M1", "M2", "M3", "M4", "M5", "M6_C", "M6_G", "M6_CG")
+ols_compare_dt <- build_OLS_summaries(model_set = MM, data_sf = regions_sf_transformed)
+ols_compare_dt_t <- data.table(Indicator = names(ols_compare_dt)[2:length(ols_compare_dt)], data.table::transpose(ols_compare_dt, make.names = T))
+
+ols_summaries_plot <- plot_model_comparison(ols_compare_dt)
+ols_summaries_plot
+```
+
+## Spatial models
+
+We used M6_CG as the baseline OLS model and extended it with spatial specifications. The best models are SEM (Spatial Error Model), LAG (Spatial Lag Model) and OLS. These models have the lowest corrected Akaike Information Criterion (AICc), but the values are very close and not significantly different.
+
+However, SEM helps to compensate for the spatial autocorrelation of some unobserved and unaccounted spatially autocorrelated factors. The LAG model corrects for the spatial autocorrelation of the excess mortality and the fact that the spread of COVID-19 is indeed quite likely to occur between the neighbouring regions, which is also observed on the global scale. Other models (all models below OLS in the figure below) do produce lower model errors, however, they add very little in terms of interpretability of the results in general and the model coefficients.
+
+
+```{r}
+model_formula_best <- "Excess_mortality_apr_feb_per_capita ~ Migr_IntraReg_3Y_mean_per_capita_x10000 + Doctors_per_capita_x1000 + Jul_Humid_Mean_10yr + Post_Working_Age_Population_Share + Retail_N_per_capita_x1000 + Workers_in_G_EconAct_Share + Workers_in_C_EconAct_Share + Ecommerce_Users_Share + Population_Below_Living_Wage_Share"
+```
+
+```{r build_models, include=T}
+regions_sf_transformed_standardised_xs <- standardise_sf(data_sf = regions_sf_transformed, y_var = "Excess_mortality_apr_feb_per_capita")
+model_set_best_spatial <- build_models(data_sf = regions_sf_transformed,
+                               W = W,
+                               formula_string = model_formula_best,
+                               standardise = FALSE)
+
+model_set_best_spatial_std <- build_models(data_sf = regions_sf_transformed_standardised_xs,
+                               W = W,
+                               formula_string = model_formula_best,
+                               standardise = FALSE)
+
+```
+
+## Model performance comparison
+
+```{r compare_models_best, dpi=300, fig.width=10, fig.height=8}
+model_summaries <- build_model_summaries(model_set_best_spatial, data_sf = regions_sf_transformed)
+model_summaries_std <- build_model_summaries(model_set_best_spatial, data_sf = regions_sf_transformed_standardised_xs)
+
+model_summaries_best_plot <- plot_model_comparison(model_summaries)
+model_summaries_best_plot
+
+```
+
+## Comparison of spatial models' coefficients
+
+```{r}
+spat_coefs <- plot_summs(model_set_best_spatial_std$mod_lm,
+                         model_set_best_spatial_std$mod_sem,
+                         model_set_best_spatial_std$mod_lag,
+                         model_set_best_spatial_std$mod_sdm,
+                         model_set_best_spatial_std$mod_sdem,
+                         model_set_best_spatial_std$mod_slx,
+                         model_set_best_spatial_std$mod_sarar,
+                         scale = TRUE, robust = TRUE, inner_ci_level = .9, plot.distributions = F,
+                         model.names = c("OLS", "SEM", "LAG", "SDM", "SDEM", "SLX", "SARAR")) +
+  labs(x = "Estimates (z-standardised, robust, CI 95%, only direct impacts for spatial models)")
+spat_coefs
+```
+
+## Employment correlation and regression
+
+### Employment correlation with excess mortality
+
+```{r}
+top_workers_vars <- cor_table[order(-`LM R2`)] %>% head(20) %>% .[, `Variable Name`] %>% .[grepl("Workers_in.*", .)]
+correlation_pairs_top_x <- yx_vars_correlation_matrix(y_var = "Excess_mortality_apr_feb_per_capita",
+                           x_vars =  top_workers_vars,
+                            data_sf = regions_sf_transformed)
+correlation_pairs_top_x
+```
+
+# Correlation of the employment in economic activities
+
+As we can see from the figure below, shares of employment in many economic activities are highly correlated with each other, as well as with the excess mortality. So hypothetically, a model for excess mortality could be composed completely based on the employment rates.
+
+We have explored this option and can conclude that using just one of the economic activity type G (retail) is the best option.
+The employment in G does not necessarily capture the whole employment, and therefore interaction, structure, but it is just enough to explain the excess mortality without relying on other economic activities.
+
+```{r workers_correlation_matrix, dpi=140, fig.width=10, fig.height=8}
+workers_correlations <- ggcorr(regions_sf_transformed %>%
+         st_drop_geometry() %>%
+         dplyr::select("Excess_mortality_apr_feb_per_capita", "Population_log", contains("Workers_in")) %>% 
+         rename_all(.funs = ~ gsub("Workers_in_|_EconAct_Share|_log", "", .x)) %>% 
+         rename_all(.funs = ~ gsub("Excess_mortality_apr_feb_per_capita", "Excess Mortality", .x)),
+       nbreaks = 7,
+       low = "steelblue", mid = "grey90", high = "darkred", hjust = 0.93, size = 6,
+       label = T, label_color = "grey80", label_size = 3,
+       # geom = "circle",
+       layout.exp = 10)
+workers_correlations
+```
+
+Let us focus on fewer variables:
+
+```{r workers_correlation_matrix_subset, dpi=140, fig.width=10, fig.height=8}
+workers_correlations_subset <- ggcorr(regions_sf_transformed %>%
+         st_drop_geometry() %>%
+         # dplyr::select("Excess_mortality_apr_feb_per_capita", "Population_log",
+         dplyr::select("Excess_mortality_apr_feb_per_capita", 
+                       contains(paste0("Workers_in_", c("A_", "B_", "C_", "D_", "G_", "J_", "K_", "P_", "R_") ))) %>% 
+         rename_all(.funs = ~ gsub("Workers_in_|_EconAct_Share|_log", "", .x)) %>% 
+         rename_all(.funs = ~ gsub("Excess_mortality_apr_feb_per_capita", "Excess Mortality", .x)),
+       nbreaks = 7,
+       low = "steelblue", mid = "grey90", high = "darkred", hjust = 0.93, size = 6,
+       label = T, label_color = "grey80", label_size = 3,
+       # geom = "circle",
+       layout.exp = 10)
+workers_correlations_subset
+```
+
+# Export article plots and data
+
+## Export model summaries
+
+```{r include=FALSE}
+export_summs(
+  model_set_best_spatial$mod_lm, model_set_best_spatial$mod_sem, model_set_best_spatial$mod_lag,
+  model_set_best_spatial$mod_sem, model_set_best_spatial$mod_sdem, model_set_best_spatial$mod_slx,
+  model_set_best_spatial$mod_sdm, model_set_best_spatial$mod_sarar, model_set_best_spatial$mod_gns,
+             scale = T, robust = TRUE, to.file = "xlsx", file.name = paste0(here::here("summaries/"), "spat_model_summaries.xlsx"),
+  error_format = "CI [{conf.low}, {conf.high}]",
+  model.names = c("LM", "SEM", "LAG", "SEM", "SDEM", "SLX", "SDM", "SARAR", "GNS"))
+
+export_summs(
+  model_set_best_spatial_std$mod_lm, model_set_best_spatial_std$mod_sem, model_set_best_spatial_std$mod_lag,
+  model_set_best_spatial_std$mod_sdm, model_set_best_spatial_std$mod_sdem, model_set_best_spatial_std$mod_slx, model_set_best_spatial_std$mod_sarar, model_set_best_spatial_std$mod_gns,
+             scale = T, robust = TRUE, to.file = "xlsx", file.name = paste0(here::here("summaries/"), "spat_model_summaries_std.xlsx"),
+  error_format = "CI [{conf.low}, {conf.high}]",
+  model.names = c("OLS", "SEM", "LAG", "SDM", "SDEM", "SLX", "SARAR", "GNS"))
+
+
+export_summs(
+  model_set_best_spatial_std$mod_lm, model_set_best_spatial_std$mod_sem, model_set_best_spatial_std$mod_lag,
+             scale = T, robust = TRUE, to.file = "xlsx", file.name = paste0(here::here("summaries/"), "spat_model_summaries_simple.xlsx"),
+  model.names = c("OLS", "SEM", "LAG"))
+
+
+```
+
+Saving the model plots for the paper draft.
+
+```{r save_spat_autocorr, include=TRUE, results='hide'}
+ggsave(plot = three_maps,
+       filename = here::here("plots", "fig_01_clusters.tiff"),
+       device = "tiff", units = "cm", width = 24, height = 20, dpi = 300, compression = "lzw"
+       )
+
+ggsave(plot = three_maps,
+       filename = here::here("plots", "fig_01_clusters.png"),
+       device = "png", units = "cm", width = 24, height = 20, dpi = 200
+       )
+```
+
+```{r save_ols_coefs, include=TRUE, results='hide'}
+ggsave(plot = ols_coefs_up_to_m6c,
+       filename = here::here("plots", "fig_02_coefs_ols_up_to_m6c.tiff"),
+       device = "tiff", units = "cm", width = 20, height = 22, dpi = 140, compression = "lzw"
+       )
+
+ggsave(plot = ols_coefs_up_to_m6c,
+       filename = here::here("plots", "fig_02_coefs_ols_up_to_m6c.png"),
+       device = "png", units = "cm", width = 20, height = 22, dpi = 140
+       )
+
+ggsave(plot = ols_coefs_m6cg,
+       filename = here::here("plots", "fig_03_ols_coefs_m6c_vs_m6_g.tiff"),
+       device = "tiff", units = "cm", width = 20, height = 12, dpi = 140, compression = "lzw"
+       )
+
+ggsave(plot = ols_coefs_m6cg,
+       filename = here::here("plots", "fig_03_ols_coefs_m6c_vs_m6_g.png"),
+       device = "png", units = "cm", width = 20, height = 12, dpi = 140
+       )
+
+
+ggsave(plot = spat_coefs,
+       filename = here::here("plots", "fig_06_spat_coefs_compare.tiff"),
+       device = "tiff", units = "cm", width = 20, height = 22, dpi = 140, compression = "lzw"
+       )
+
+ggsave(plot = spat_coefs,
+       filename = here::here("plots", "fig_06_spat_coefs_compare.png"),
+       device = "png", units = "cm", width = 20, height = 22, dpi = 140
+       )
+
+```
+
+```{r save_ols_summaries, include=TRUE, results='hide'}
+ggsave(plot = ols_summaries_plot,
+       filename = here::here("plots", "fig_04_ols_summaries.tiff"),
+       device = "tiff", units = "cm", width = 30, height = 20, dpi = 140, compression = "lzw"
+       )
+
+ggsave(plot = ols_summaries_plot,
+       filename = here::here("plots", "fig_04_ols_summaries.png"),
+       device = "png", units = "cm", width = 30, height = 20, dpi = 140
+       )
+
+
+
+```
+
+```{r save_mod_summaries, include=TRUE, results='hide'}
+ggsave(plot = model_summaries_best_plot,
+       filename = here::here("plots", "fig_05_spatial_mod_summaries.tiff"),
+       device = "tiff", units = "cm", width = 30, height = 20, dpi = 140, compression = "lzw"
+       )
+
+ggsave(plot = model_summaries_best_plot,
+       filename = here::here("plots", "fig_05_spatial_mod_summaries.png"),
+       device = "png", units = "cm", width = 30, height = 20, dpi = 140
+       )
+
+
+```
+
+```{r save_workers_correaltions, include=TRUE, results='hide'}
+ggsave(plot = workers_correlations,
+       filename = here::here("plots", "fig_07_empl_correlations.tiff"),
+       device = "tiff", units = "cm", width = 24, height = 20, dpi = 200, compression = "lzw"
+       )
+
+ggsave(plot = workers_correlations,
+       filename = here::here("plots", "fig_07_empl_correlations.png"),
+       device = "png", units = "cm", width = 24, height = 20, dpi = 200
+       )
+```

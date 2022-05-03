@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>COVID Paper key plots and tables</title>
+
+<script src="paper_files/header-attrs-2.14/header-attrs.js"></script>
+<script src="paper_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="paper_files/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="paper_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="paper_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="paper_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="paper_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="paper_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="paper_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="paper_files/navigation-1.1/tabsets.js"></script>
+<script src="paper_files/navigation-1.1/codefolding.js"></script>
+<link href="paper_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="paper_files/highlightjs-9.12.0/highlight.js"></script>
+<script src="paper_files/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="paper_files/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="paper_files/datatables-binding-0.22/datatables.js"></script>
+<link href="paper_files/dt-core-1.11.3/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="paper_files/dt-core-1.11.3/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="paper_files/dt-core-1.11.3/js/jquery.dataTables.min.js"></script>
+<link href="paper_files/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="paper_files/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">COVID Paper key plots and tables</h1>
+
+</div>
+
+
+<style type="text/css">
+.main-container {
+  max-width: 100% !important;
+  margin: auto;
+}
+</style>
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>Author names will be added after peer-review.</p>
+<p>All code is visible for reference. Some custom functions are saved in
+<code>/R/functions.R</code>.</p>
+<div id="loading-packages" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Loading packages</h2>
+<pre class="r"><code># preinstall key packages
+if( !&quot;renv&quot; %in% installed.packages()[,&#39;Package&#39;] )  { install.packages(&quot;renv&quot;) }
+if( !&quot;here&quot; %in% installed.packages()[,&#39;Package&#39;] )  { install.packages(&quot;here&quot;) }
+if( !&quot;rmarkdown&quot; %in% installed.packages()[,&#39;Package&#39;] )  { install.packages(&quot;rmarkdown&quot;) }
+
+# install other pac
+source(here::here(&quot;R&quot;, &quot;functions.R&quot;))
+
+knitr::opts_chunk$set(cache = FALSE)
+
+knitr::opts_chunk$set(echo = TRUE) 
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(dpi = 300)
+knitr::opts_chunk$set(fig.width = 10)
+knitr::opts_chunk$set(fig.height = 8)
+
+
+# Set so that long lines in R will be wrapped:
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60), tidy=TRUE)
+
+
+invisible(lapply(eval(packages_to_load), require, character.only = TRUE))</code></pre>
+</div>
+<div id="loading-data" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Loading data</h2>
+<p>Loading region boundaries with attributes and spatial weights
+matrix.</p>
+<p>The matrix of spatial neighbours for the spatial autocorrelation test
+and the resulting spatial models were created based on region boundary
+polygons from <a href="https://www.openstreetmap.org">OpenStreetMap</a>
+(OpenStreetMap contributors 2017) with <a
+href="https://geodacenter.github.io">GeoDa</a> software (Anselin et. al
+2006) using first-order queen contiguity. Regions without neighbours
+(such as Kaliningrad Region and Sakhalin Region) were manually connected
+to 2-3 closest regions .</p>
+<pre class="r"><code>regions_sf &lt;- here::here(&quot;data&quot;, &quot;region_borders_with_data.gpkg&quot;) %&gt;%
+    st_read(dsn = ., quiet = TRUE)
+
+# simplify geometry for faster map plotting
+regions_sf &lt;- st_simplify(regions_sf, dTolerance = 1000)
+
+# calculate population density
+regions_sf &lt;- regions_sf %&gt;%
+    dplyr::mutate(Population_Density = Population/Region_Area_km2)
+
+OKTMO_NUM &lt;- as.integer(regions_sf$OKTMO_NUM)
+nb &lt;- here::here(&quot;data&quot;, &quot;region_borders_with_data.gal&quot;) %&gt;%
+    read.gal(file = ., region.id = OKTMO_NUM)
+W &lt;- nb2listw(nb, style = &quot;W&quot;)
+
+codebook &lt;- read_excel(here::here(&quot;codebook&quot;, &quot;codebook.xlsx&quot;)) %&gt;%
+    setDT()
+
+codebook[, `:=`(variable_name_transformed, variable_name), ]
+codebook[log_transform_recommended == &quot;yes&quot;, `:=`(variable_name_transformed,
+    paste0(variable_name, &quot;_log&quot;)), ]
+all_x_vars &lt;- codebook[var_type == &quot;x&quot;, variable_name_transformed,
+    ]</code></pre>
+<p>Transforming variables that require natural log transformation for
+better model fit.</p>
+<p>Rail Road Density variable is included for reference, but it is not
+critical for the final model, as it is highly correlated with Road
+Density. Nonetheless, the transformation of Rail Road Density does
+require an “increment, then log-transform” approach, as the original
+data contains 0 values due to missing data in OpenStreetMap.</p>
+<pre class="r"><code>vars_for_log_transform &lt;- codebook[log_transform_recommended ==
+    &quot;yes&quot;, variable_name, ]
+
+regions_sf_transformed &lt;- regions_sf %&gt;%
+    mutate_at(vars_for_log_transform, log) %&gt;%
+    rename_at(vars_for_log_transform, ~paste0(vars_for_log_transform,
+        &quot;_log&quot;)) %&gt;%
+    mutate(Rail_Road_Density_log = log(regions_sf$Rail_Road_Density +
+        1))</code></pre>
+</div>
+</div>
+<div id="preliminary-analysis" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Preliminary
+analysis</h1>
+<div id="preliminary-correlation-and-linear-regresison-analisys"
+class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Preliminary
+Correlation and Linear Regresison analisys</h2>
+<p>The following plots demonstrate the top variables that could explain
+the <code>Excess mortality</code>. This illustrates part of the
+preliminary exploratory data analysis.</p>
+<p><strong>Correlation of Excess Mortality vs all X
+variables</strong></p>
+<p><em>All variables are either close to normally distributed or have
+been ln-transformed, so the correlation is reliable in the following
+table.</em></p>
+<p>The table below is sorted by descending R2 of one-on-one linear
+models of <code>Excess mortality</code> vs corresponding X variable.</p>
+<pre class="r"><code>cor_table &lt;- correlation_table(regions_sf_transformed)
+DT::datatable(cor_table, options = list(scrollX = TRUE, paging = TRUE))</code></pre>
+<div id="htmlwidget-29e789dbf2ea624866c8" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-29e789dbf2ea624866c8">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55"],["Under_Working_Age_Population_Share","Patents_per_capita_x10000_log","Post_Working_Age_Population_Share","Rail_Road_Density_log","Workers_in_C_EconAct_Share","Workers_in_G_EconAct_Share","Population_log","Floor_Area_per_capita","Workers_in_O_EconAct_Share","Road_Density_log","Workers_in_P_EconAct_Share","Population_Density_log","Workers_in_B_EconAct_Share_log","Population_Below_Living_Wage_Share","SME_in_GRDP_Share","Workers_in_R_EconAct_Share","GRDP_in_GDP_Share_log","Migr_Outflow_InterReg_3Y_mean_per_capita_x10000","Buses_per_capita_log","Workers_in_K_EconAct_Share_log","Modern_Retail_Area_per_capita_x1000","Jan_Humid_Mean_10yr","Workers_in_D_EconAct_Share","Workers_in_S_EconAct_Share","Cars_per_capita_x1000","Retail_Area_per_capita_x1000","Workers_in_L_EconAct_Share","Workers_in_J_EconAct_Share_log","Salary_Region_to_Country_Ratio","Working_Age_Population_Share","Workers_in_A_EconAct_Share","Workers_in_Q_EconAct_Share","Migr_Inflow_InterReg_3Y_mean_per_capita_x10000","Workers_in_I_EconAct_Share_log","Jul_Temp_Mean_10yr","Mean_Real_Wage","Workers_in_N_EconAct_Share_log","Migr_IntraReg_3Y_mean_per_capita_x10000","Retail_N_per_capita_x1000","Jan_Temp_Mean_10yr","Migr_Outflow_International_3Y_mean_per_capita_x10000","Jul_Humid_Mean_10yr","Airport_Density_log","Urban_Population_Share","Income_per_capita","Migr_Inflow_International_3Y_mean_per_capita_x10000","Workers_in_M_EconAct_Share","Workers_in_H_EconAct_Share","Digital_Gov_Serv_Users_Share","Ecommerce_Users_Share","Change_over_5yrs_Doctors_per_capita_x1000","Doctors_per_capita_x1000","Workers_in_E_EconAct_Share","Employees_in_Working_Age_Population_Share","Workers_in_F_EconAct_Share"],[-0.6347,0.6336,0.6234,0.5822,0.582,0.5387,0.5344,0.5007,-0.4971,0.4732,-0.4722,0.4573,-0.4223,-0.4081,0.389,-0.3839,0.378,-0.3592,-0.3502,0.3493,0.3474,0.3393,-0.3339,0.3112,0.3094,0.3045,0.2985,0.2931,-0.2903,-0.2862,0.2812,-0.2727,-0.2721,0.2678,0.261,-0.2588,0.2373,-0.2362,-0.2232,0.2128,0.2093,-0.2087,0.1911,0.1811,-0.1774,0.1496,0.1317,-0.1196,0.0869,-0.0463,-0.045,-0.0374,0.0346,0.0122,-0.0036],[0.4028,0.4015,0.3886,0.3389,0.3387,0.2902,0.2856,0.2507,0.2471,0.2239,0.223,0.2091,0.1783,0.1666,0.1513,0.1473,0.1429,0.129,0.1226,0.122,0.1207,0.1151,0.1115,0.0968,0.0957,0.0927,0.0891,0.0859,0.0843,0.0819,0.0791,0.0744,0.074,0.0717,0.0681,0.067,0.0563,0.0558,0.0498,0.0453,0.0438,0.0435,0.0365,0.0328,0.0315,0.0224,0.0173,0.0143,0.0075,0.0021,0.002,0.0014,0.0012,0.0001,0],[1e-10,1e-10,2e-10,5.1e-09,5.2e-09,1.049e-07,1.383e-07,1.0602e-06,1.3037e-06,4.7891e-06,5.0538e-06,1.08261e-05,5.68945e-05,0.0001056011,0.0002335292,0.0002872772,0.0003618116,0.0007363794,0.0010187066,0.0010500124,0.0011253662,0.0014889829,0.0017894116,0.0037484637,0.0039581,0.00460673,0.0055226968,0.0064837016,0.0070276418,0.0079147532,0.0091368521,0.0115716069,0.0117676885,0.0132054232,0.0158340838,0.01678343,0.0287542421,0.029555165,0.04000727,0.0505334089,0.0546014057,0.0552919987,0.0797190358,0.0971161655,0.1042368792,0.1718104859,0.2296748935,0.2756862261,0.4292428192,0.6740945276,0.6822805611,0.7339151964,0.7535537256,0.9115709975,0.9742382471]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Variable Name<\/th>\n      <th>Correlation<\/th>\n      <th>LM R2<\/th>\n      <th>LM p-value<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"paging":true,"columnDefs":[{"className":"dt-right","targets":[2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="correlation-of-top-x-variables" class="section level2"
+number="2.2">
+<h2><span class="header-section-number">2.2</span> Correlation of top X
+variables</h2>
+<p><strong>Correlation of Excess Mortality vs top X
+variables</strong></p>
+<p>The plot below illustrates how some of the top variables from the
+table above are related to the <code>Excess mortality</code> as well as
+to each other. This illustrates the process of variable selection for
+the statistical model.</p>
+<pre class="r"><code>correlation_pairs_top_x &lt;- yx_vars_correlation_matrix(y_var = &quot;Excess_mortality_apr_feb_per_capita&quot;,
+    x_vars = cor_table[order(-`LM R2`)] %&gt;%
+        head(7) %&gt;%
+        .[, `Variable Name`], data_sf = regions_sf_transformed)
+correlation_pairs_top_x</code></pre>
+<p><img src="paper_files/figure-html/correlation_pairs_top_x-1.png" width="3000" /></p>
+</div>
+</div>
+<div id="modelling" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Modelling</h1>
+<p>We use a standard selection of spatial models. Here is a comparison
+of different spatial econometric model specifications:</p>
+<p><img src="ext_img/spat_mod_compare.png"
+alt="Comparison of Different Spatial Econometric Model Specifications" />
+<em>Image source: Vega S.H. and Elhorst J.P. (2015). The Slx Model.
+Journal of Regional Science, 55(3), 339–363. DOI: <a
+href="https://doi.org/10.1111/jors.12188">10.1111/jors.12188</a></em></p>
+<p>The code below demonstrates building the best model and can be
+changed by the reader to use different variables and see how the results
+change.</p>
+<div id="spatial-autocorrelation" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Spatial
+autocorrelation</h2>
+<p>Most variables suffer from spatial autocorrelation.</p>
+<pre class="r"><code>y &lt;- var_test_spatial(dataset = regions_sf_transformed, target_var_name = &quot;Excess_mortality_apr_feb_per_capita&quot;,
+    weights = W)
+x1 &lt;- var_test_spatial(regions_sf_transformed, target_var_name = &quot;Workers_in_C_EconAct_Share&quot;,
+    weights = W)
+x2 &lt;- var_test_spatial(regions_sf_transformed, target_var_name = &quot;Post_Working_Age_Population_Share&quot;,
+    weights = W)
+
+three_maps &lt;- (y/x1/x2)
+three_maps</code></pre>
+<p><img src="paper_files/figure-html/spatial_autocorr-1.png" width="3000" /></p>
+<p>Therefore we may expect the OLS regression to perform poorly.
+However, we will use it as a baseline model.</p>
+</div>
+<div id="baseline-ols-models" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Baseline OLS
+models</h2>
+<p>We first build a series of OLS models to check our hypothesis for the
+key human interaction variables.</p>
+<div
+id="m0-population-density-and-economic-activities-that-require-human-interaction"
+class="section level3" number="3.2.1">
+<h3><span class="header-section-number">3.2.1</span> M0: Population
+density and economic activities that require human interaction</h3>
+<p>We started with the model M0, which takes into account population
+density (using population density and residential floor per capita
+variables), employment in economic sectors that require close human
+interaction (B – mining, C – manufacturing, G – retail and services, P –
+education, and in small and medium enterprises in general), and local
+transportation opportunities and constraints (number of buses and cars
+per capita).</p>
+<p>M0 clearly showed that population density and transportation
+constraints have no effect on mortality. The only two significant
+variables are the share of employees in manufacturing (C) and retail
+&amp; services (G), as these are the only variables with confidence
+intervals that do not cross the zero-line.</p>
+<p>The proximity of the confidence interval to zero may be due to the
+inclusion of insignificant variables in the model, therefore we removed
+some of these variables starting with the model M4 below.</p>
+<pre class="r"><code>M0 &lt;- regions_sf_transformed %&gt;%
+    lm(data = ., formula = Excess_mortality_apr_feb_per_capita ~
+        Population_Density_log + Floor_Area_per_capita + Workers_in_C_EconAct_Share +
+            Workers_in_G_EconAct_Share + Workers_in_P_EconAct_Share +
+            Workers_in_B_EconAct_Share_log + SME_in_GRDP_Share +
+            Buses_per_capita_log + Cars_per_capita_x1000 + Urban_Population_Share)</code></pre>
+<pre class="r"><code>resid_panel(M0)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-2-1.png" width="3000" /></p>
+<pre class="r"><code>plot_summs(M0, scale = T, inner_ci_level = 0.9, plot.distributions = F)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-2-2.png" width="3000" /></p>
+</div>
+<div id="m1-m0-climate" class="section level3" number="3.2.2">
+<h3><span class="header-section-number">3.2.2</span> M1: M0 +
+Climate</h3>
+<p>M1 is an extension of M0 with climate variables (temperature and
+humidity). It was found that temperature does not affect mortality,
+while the effect of humidity is uncertain and should be tried in further
+models.</p>
+<pre class="r"><code>M1 &lt;- regions_sf_transformed %&gt;%
+    lm(data = ., formula = Excess_mortality_apr_feb_per_capita ~
+        Population_Density_log + Floor_Area_per_capita + Workers_in_C_EconAct_Share +
+            Workers_in_G_EconAct_Share + Workers_in_P_EconAct_Share +
+            Workers_in_B_EconAct_Share_log + SME_in_GRDP_Share +
+            Buses_per_capita_log + Cars_per_capita_x1000 + Jul_Temp_Mean_10yr +
+            Jul_Humid_Mean_10yr)
+
+resid_panel(M1)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-3-1.png" width="3000" /></p>
+<pre class="r"><code>plot_summs(M0, M1, scale = T, inner_ci_level = 0.9, plot.distributions = F,
+    model.names = paste0(&quot;M&quot;, 0:1))</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-3-2.png" width="3000" /></p>
+</div>
+<div id="m2-m1-healthcare" class="section level3" number="3.2.3">
+<h3><span class="header-section-number">3.2.3</span> M2: M1 +
+Healthcare</h3>
+<p>M2 adds the healthcare component (number of doctors per capita). It
+was found that, depending on the model, the confidence interval may
+touch the zero mark, but this factor is still worth considering in
+further models.</p>
+<pre class="r"><code>M2 &lt;- regions_sf_transformed %&gt;%
+    lm(data = ., formula = Excess_mortality_apr_feb_per_capita ~
+        Population_Density_log + Floor_Area_per_capita + Workers_in_C_EconAct_Share +
+            Workers_in_G_EconAct_Share + Workers_in_P_EconAct_Share +
+            Workers_in_B_EconAct_Share_log + SME_in_GRDP_Share +
+            Jul_Temp_Mean_10yr + Jul_Humid_Mean_10yr + Doctors_per_capita_x1000)
+
+resid_panel(M2)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-4-1.png" width="3000" /></p>
+<pre class="r"><code>plot_summs(M0, M1, M2, scale = T, inner_ci_level = 0.9, plot.distributions = F,
+    model.names = paste0(&quot;M&quot;, 0:2))</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-4-2.png" width="3000" /></p>
+</div>
+<div id="m3-m2-migration-and-interregional-transport"
+class="section level3" number="3.2.4">
+<h3><span class="header-section-number">3.2.4</span> M3: M2 + Migration
+and Interregional Transport</h3>
+<p>M3 adds interregional migration flow and opportunity for the spread
+of COVID-19 following the Hägerstrand’s (1973) spatial diffusion of
+innovation (via the airport density). It was found that airports have no
+detectable effect, which suggests that air travel between regions was
+likely not a significant factor in the COVID-19 spread across Russia,
+while inter-regional migration is worth considering.</p>
+<pre class="r"><code>M3 &lt;- regions_sf_transformed %&gt;%
+    lm(data = ., formula = Excess_mortality_apr_feb_per_capita ~
+        Population_Density_log + Floor_Area_per_capita + Workers_in_C_EconAct_Share +
+            Workers_in_G_EconAct_Share + Workers_in_P_EconAct_Share +
+            Workers_in_B_EconAct_Share_log + SME_in_GRDP_Share +
+            Jul_Temp_Mean_10yr + Jul_Humid_Mean_10yr + Doctors_per_capita_x1000 +
+            Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 +
+            Airport_Density_log)
+
+resid_panel(M3)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-5-1.png" width="3000" /></p>
+<pre class="r"><code>plot_summs(M0, M1, M2, M3, scale = T, inner_ci_level = 0.9, plot.distributions = F,
+    model.names = paste0(&quot;M&quot;, 0:3))</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-5-2.png" width="3000" /></p>
+</div>
+<div id="m4-previous-significant-variables-age-and-income"
+class="section level3" number="3.2.5">
+<h3><span class="header-section-number">3.2.5</span> M4: Previous
+significant variables + Age and Income</h3>
+<p>With the next model M4, we eliminated the non-significant variables
+from previous models and added age (as the elderly are the most affected
+by both the virus and the deterioration of regular medical care) and
+income (following the hypothesis that in poorer regions the population
+will ignore the restrictions more frequently as they must provide money
+for their families). It was found that on its own M4 has almost no
+significant coefficients, however, it provides information on the
+potential of individual variables.</p>
+<p>Population density expressed as residential floor area per capita
+proved to be insignificant, as its coefficient in M4 falls almost to
+zero. The coefficients for the share of workers in manufacturing (C) and
+retail &amp; services (G), the number of doctors per capita, and
+humidity in M4 and previous models vary slightly but mostly remain
+significant, suggesting that these two economic domains with intensive
+and close human interaction are important negative factors of the excess
+mortality.</p>
+<pre class="r"><code>M4 &lt;- regions_sf_transformed %&gt;%
+    lm(data = ., formula = Excess_mortality_apr_feb_per_capita ~
+        Floor_Area_per_capita + Workers_in_C_EconAct_Share +
+            Workers_in_G_EconAct_Share + Jul_Humid_Mean_10yr +
+            Doctors_per_capita_x1000 + Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 +
+            Airport_Density_log + Post_Working_Age_Population_Share +
+            Income_per_capita + Population_Below_Living_Wage_Share)
+
+resid_panel(M4)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-6-1.png" width="3000" /></p>
+<pre class="r"><code>plot_summs(M0, M1, M2, M3, M4, scale = T, inner_ci_level = 0.9,
+    plot.distributions = F, model.names = paste0(&quot;M&quot;, 0:4))</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-6-2.png" width="3000" /></p>
+</div>
+<div id="m5-age-income-digital-skills-and-e-commerce"
+class="section level3" number="3.2.6">
+<h3><span class="header-section-number">3.2.6</span> M5: Age + Income +
+Digital Skills and E-commerce</h3>
+<p>M5 builds on M4 by adding digital skills, the share of e-commerce
+users and the overall provision of retail businesses. In M5 we can see
+that income expressed as the share of the population with income below
+the living wage has a high negative impact on excess mortality. This is
+counterintuitive but may suggest that those households interacted less,
+as they had no money to spend.</p>
+<p>The higher share of e-commerce users, as well as the higher number of
+retail locations per capita, also had a negative effect, as the reliance
+on face-to-face contact was lower in regions with high values for these
+variables. Interestingly, M5 also suggests that a higher share of the
+population using government services over the Internet somehow
+negatively affects mortality.</p>
+<pre class="r"><code>M5 &lt;- regions_sf_transformed %&gt;%
+    lm(data = ., formula = Excess_mortality_apr_feb_per_capita ~
+        Post_Working_Age_Population_Share + Income_per_capita +
+            Population_Below_Living_Wage_Share + Doctors_per_capita_x1000 +
+            Salary_Region_to_Country_Ratio + Ecommerce_Users_Share +
+            Retail_N_per_capita_x1000 + Digital_Gov_Serv_Users_Share)
+
+resid_panel(M5)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-7-1.png" width="3000" /></p>
+<pre class="r"><code>plot_summs(M0, M1, M2, M3, M4, M5, scale = T, inner_ci_level = 0.9,
+    plot.distributions = F, model.names = paste0(&quot;M&quot;, 0:5))</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-7-2.png" width="3000" /></p>
+</div>
+<div id="m6-final-ols-models" class="section level3" number="3.2.7">
+<h3><span class="header-section-number">3.2.7</span> M6: Final OLS
+models</h3>
+<p>Finally, models M6_C, M6_G and M6_CG are the ultimate models with the
+most significant variables that demonstrate a noticeable and explainable
+effect. The difference is that M6_C uses the share of employees in
+manufacturing (C), while M6_G replaces it with the share in retail and
+services (G). M6_CG uses the shares in both C and G economic
+activities.</p>
+<p>Clearly, the share of employees in C and G is almost equally
+important, both according to the models and the logic behind the
+variables, however with the M6_C model we are able to capture the effect
+of retail with the number of retail locations per capita and e-commerce.
+M6_G and M6_CG, despite their overall similarity to M6_C, do not
+reproduce the same effects reliably.</p>
+<p>M6 models also suggest that the number of doctors is irrelevant,
+which makes sense compared to the previous models as this variable had a
+positive effect on excess mortality, which could only be explained by
+assuming that contacts through doctors were stimulating additional
+infections.</p>
+<pre class="r"><code>M6_C &lt;- regions_sf_transformed %&gt;%
+    lm(data = ., formula = Excess_mortality_apr_feb_per_capita ~
+        Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 + Doctors_per_capita_x1000 +
+            Jul_Humid_Mean_10yr + Post_Working_Age_Population_Share +
+            Retail_N_per_capita_x1000 + Workers_in_C_EconAct_Share +
+            Ecommerce_Users_Share + Population_Below_Living_Wage_Share)
+
+resid_panel(M6_C)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-8-1.png" width="3000" /></p>
+<pre class="r"><code>ols_coefs_up_to_m6c &lt;- plot_summs(M0, M1, M2, M3, M4, M5, M6_C,
+    scale = T, robust = TRUE, inner_ci_level = 0.9, plot.distributions = F,
+    model.names = c(paste0(&quot;M&quot;, 0:5), &quot;M6_C&quot;)) + labs(x = &quot;Estimates (z-standardised, robust, CI 95%)&quot;)
+ols_coefs_up_to_m6c</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-8-2.png" width="3000" /></p>
+<pre class="r"><code>M6_G &lt;- regions_sf_transformed %&gt;%
+    lm(data = ., formula = Excess_mortality_apr_feb_per_capita ~
+        Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 + Doctors_per_capita_x1000 +
+            Jul_Humid_Mean_10yr + Post_Working_Age_Population_Share +
+            Retail_N_per_capita_x1000 + Workers_in_G_EconAct_Share +
+            Ecommerce_Users_Share + Population_Below_Living_Wage_Share)
+
+resid_panel(M6_G)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-9-1.png" width="3000" /></p>
+<pre class="r"><code>ols_coefs_m6c_vs_m6_g &lt;- plot_summs(M6_C, M6_G, scale = T, robust = TRUE,
+    inner_ci_level = 0.9, plot.distributions = F, model.names = c(&quot;M6_C&quot;,
+        &quot;M6_G&quot;)) + labs(x = &quot;Estimates (z-standardised, robust, CI 95%)&quot;)
+ols_coefs_m6c_vs_m6_g</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-9-2.png" width="3000" /></p>
+<pre class="r"><code>M6_CG &lt;- regions_sf_transformed %&gt;%
+    lm(data = ., formula = Excess_mortality_apr_feb_per_capita ~
+        Migr_Inflow_InterReg_3Y_mean_per_capita_x10000 + Doctors_per_capita_x1000 +
+            Jul_Humid_Mean_10yr + Post_Working_Age_Population_Share +
+            Retail_N_per_capita_x1000 + Workers_in_G_EconAct_Share +
+            Ecommerce_Users_Share + Workers_in_C_EconAct_Share +
+            Population_Below_Living_Wage_Share)
+resid_panel(M6_CG)</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-10-1.png" width="3000" /></p>
+<pre class="r"><code>ols_coefs_m6cg &lt;- plot_summs(M6_C, M6_G, M6_CG, scale = T, robust = TRUE,
+    inner_ci_level = 0.9, plot.distributions = F, model.names = c(&quot;M6_C&quot;,
+        &quot;M6_G&quot;, &quot;M6_CG&quot;)) + labs(x = &quot;Estimates (z-standardised, robust, CI 95%)&quot;)
+ols_coefs_m6cg</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-10-2.png" width="3000" /></p>
+</div>
+<div id="compare-all-models" class="section level3" number="3.2.8">
+<h3><span class="header-section-number">3.2.8</span> Compare all
+models</h3>
+<p>A statistical summary of all OLS models is provided below. It shows
+that models M6_CG and M6_C are the best according to most model quality
+metrics. They have the lowest AICc (corrected Akaike information
+criterion), highest R-squared and adjusted R-squared, and lowest RMSE
+(root-mean-square error). Therefore, we used these models and their
+variables as the best baseline for the spatial extension of the
+model.</p>
+<pre class="r"><code>MM &lt;- list(M0, M1, M2, M3, M4, M5, M6_C, M6_G, M6_CG)
+names(MM) &lt;- c(&quot;M0&quot;, &quot;M1&quot;, &quot;M2&quot;, &quot;M3&quot;, &quot;M4&quot;, &quot;M5&quot;, &quot;M6_C&quot;, &quot;M6_G&quot;,
+    &quot;M6_CG&quot;)
+ols_compare_dt &lt;- build_OLS_summaries(model_set = MM, data_sf = regions_sf_transformed)
+ols_compare_dt_t &lt;- data.table(Indicator = names(ols_compare_dt)[2:length(ols_compare_dt)],
+    data.table::transpose(ols_compare_dt, make.names = T))
+
+ols_summaries_plot &lt;- plot_model_comparison(ols_compare_dt)
+ols_summaries_plot</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-11-1.png" width="3000" /></p>
+</div>
+</div>
+<div id="spatial-models" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> Spatial models</h2>
+<p>We used M6_CG as the baseline OLS model and extended it with spatial
+specifications. The best models are SEM (Spatial Error Model), LAG
+(Spatial Lag Model) and OLS. These models have the lowest corrected
+Akaike Information Criterion (AICc), but the values are very close and
+not significantly different.</p>
+<p>However, SEM helps to compensate for the spatial autocorrelation of
+some unobserved and unaccounted spatially autocorrelated factors. The
+LAG model corrects for the spatial autocorrelation of the excess
+mortality and the fact that the spread of COVID-19 is indeed quite
+likely to occur between the neighbouring regions, which is also observed
+on the global scale. Other models (all models below OLS in the figure
+below) do produce lower model errors, however, they add very little in
+terms of interpretability of the results in general and the model
+coefficients.</p>
+<pre class="r"><code>model_formula_best &lt;- &quot;Excess_mortality_apr_feb_per_capita ~ Migr_IntraReg_3Y_mean_per_capita_x10000 + Doctors_per_capita_x1000 + Jul_Humid_Mean_10yr + Post_Working_Age_Population_Share + Retail_N_per_capita_x1000 + Workers_in_G_EconAct_Share + Workers_in_C_EconAct_Share + Ecommerce_Users_Share + Population_Below_Living_Wage_Share&quot;</code></pre>
+<pre class="r"><code>regions_sf_transformed_standardised_xs &lt;- standardise_sf(data_sf = regions_sf_transformed,
+    y_var = &quot;Excess_mortality_apr_feb_per_capita&quot;)
+model_set_best_spatial &lt;- build_models(data_sf = regions_sf_transformed,
+    W = W, formula_string = model_formula_best, standardise = FALSE)
+
+model_set_best_spatial_std &lt;- build_models(data_sf = regions_sf_transformed_standardised_xs,
+    W = W, formula_string = model_formula_best, standardise = FALSE)</code></pre>
+</div>
+<div id="model-performance-comparison" class="section level2"
+number="3.4">
+<h2><span class="header-section-number">3.4</span> Model performance
+comparison</h2>
+<pre class="r"><code>model_summaries &lt;- build_model_summaries(model_set_best_spatial,
+    data_sf = regions_sf_transformed)
+model_summaries_std &lt;- build_model_summaries(model_set_best_spatial,
+    data_sf = regions_sf_transformed_standardised_xs)
+
+model_summaries_best_plot &lt;- plot_model_comparison(model_summaries)
+model_summaries_best_plot</code></pre>
+<p><img src="paper_files/figure-html/compare_models_best-1.png" width="3000" /></p>
+</div>
+<div id="comparison-of-spatial-models-coefficients"
+class="section level2" number="3.5">
+<h2><span class="header-section-number">3.5</span> Comparison of spatial
+models’ coefficients</h2>
+<pre class="r"><code>spat_coefs &lt;- plot_summs(model_set_best_spatial_std$mod_lm, model_set_best_spatial_std$mod_sem,
+    model_set_best_spatial_std$mod_lag, model_set_best_spatial_std$mod_sdm,
+    model_set_best_spatial_std$mod_sdem, model_set_best_spatial_std$mod_slx,
+    model_set_best_spatial_std$mod_sarar, scale = TRUE, robust = TRUE,
+    inner_ci_level = 0.9, plot.distributions = F, model.names = c(&quot;OLS&quot;,
+        &quot;SEM&quot;, &quot;LAG&quot;, &quot;SDM&quot;, &quot;SDEM&quot;, &quot;SLX&quot;, &quot;SARAR&quot;)) + labs(x = &quot;Estimates (z-standardised, robust, CI 95%, only direct impacts for spatial models)&quot;)
+spat_coefs</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-13-1.png" width="3000" /></p>
+</div>
+<div id="employment-correlation-and-regression" class="section level2"
+number="3.6">
+<h2><span class="header-section-number">3.6</span> Employment
+correlation and regression</h2>
+<div id="employment-correlation-with-excess-mortality"
+class="section level3" number="3.6.1">
+<h3><span class="header-section-number">3.6.1</span> Employment
+correlation with excess mortality</h3>
+<pre class="r"><code>top_workers_vars &lt;- cor_table[order(-`LM R2`)] %&gt;%
+    head(20) %&gt;%
+    .[, `Variable Name`] %&gt;%
+    .[grepl(&quot;Workers_in.*&quot;, .)]
+correlation_pairs_top_x &lt;- yx_vars_correlation_matrix(y_var = &quot;Excess_mortality_apr_feb_per_capita&quot;,
+    x_vars = top_workers_vars, data_sf = regions_sf_transformed)
+correlation_pairs_top_x</code></pre>
+<p><img src="paper_files/figure-html/unnamed-chunk-14-1.png" width="3000" /></p>
+</div>
+</div>
+</div>
+<div id="correlation-of-the-employment-in-economic-activities"
+class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Correlation of the
+employment in economic activities</h1>
+<p>As we can see from the figure below, shares of employment in many
+economic activities are highly correlated with each other, as well as
+with the excess mortality. So hypothetically, a model for excess
+mortality could be composed completely based on the employment
+rates.</p>
+<p>We have explored this option and can conclude that using just one of
+the economic activity type G (retail) is the best option. The employment
+in G does not necessarily capture the whole employment, and therefore
+interaction, structure, but it is just enough to explain the excess
+mortality without relying on other economic activities.</p>
+<pre class="r"><code>workers_correlations &lt;- ggcorr(regions_sf_transformed %&gt;%
+         st_drop_geometry() %&gt;%
+         dplyr::select(&quot;Excess_mortality_apr_feb_per_capita&quot;, &quot;Population_log&quot;, contains(&quot;Workers_in&quot;)) %&gt;% 
+         rename_all(.funs = ~ gsub(&quot;Workers_in_|_EconAct_Share|_log&quot;, &quot;&quot;, .x)) %&gt;% 
+         rename_all(.funs = ~ gsub(&quot;Excess_mortality_apr_feb_per_capita&quot;, &quot;Excess Mortality&quot;, .x)),
+       nbreaks = 7,
+       low = &quot;steelblue&quot;, mid = &quot;grey90&quot;, high = &quot;darkred&quot;, hjust = 0.93, size = 6,
+       label = T, label_color = &quot;grey80&quot;, label_size = 3,
+       # geom = &quot;circle&quot;,
+       layout.exp = 10)
+workers_correlations</code></pre>
+<p><img src="paper_files/figure-html/workers_correlation_matrix-1.png" width="1400" /></p>
+<p>Let us focus on fewer variables:</p>
+<pre class="r"><code>workers_correlations_subset &lt;- ggcorr(regions_sf_transformed %&gt;%
+         st_drop_geometry() %&gt;%
+         # dplyr::select(&quot;Excess_mortality_apr_feb_per_capita&quot;, &quot;Population_log&quot;,
+         dplyr::select(&quot;Excess_mortality_apr_feb_per_capita&quot;, 
+                       contains(paste0(&quot;Workers_in_&quot;, c(&quot;A_&quot;, &quot;B_&quot;, &quot;C_&quot;, &quot;D_&quot;, &quot;G_&quot;, &quot;J_&quot;, &quot;K_&quot;, &quot;P_&quot;, &quot;R_&quot;) ))) %&gt;% 
+         rename_all(.funs = ~ gsub(&quot;Workers_in_|_EconAct_Share|_log&quot;, &quot;&quot;, .x)) %&gt;% 
+         rename_all(.funs = ~ gsub(&quot;Excess_mortality_apr_feb_per_capita&quot;, &quot;Excess Mortality&quot;, .x)),
+       nbreaks = 7,
+       low = &quot;steelblue&quot;, mid = &quot;grey90&quot;, high = &quot;darkred&quot;, hjust = 0.93, size = 6,
+       label = T, label_color = &quot;grey80&quot;, label_size = 3,
+       # geom = &quot;circle&quot;,
+       layout.exp = 10)
+workers_correlations_subset</code></pre>
+<p><img src="paper_files/figure-html/workers_correlation_matrix_subset-1.png" width="1400" /></p>
+</div>
+<div id="export-article-plots-and-data" class="section level1"
+number="5">
+<h1><span class="header-section-number">5</span> Export article plots
+and data</h1>
+<div id="export-model-summaries" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Export model
+summaries</h2>
+<p>Saving the model plots for the paper draft.</p>
+<pre class="r"><code>ggsave(plot = three_maps, filename = here::here(&quot;plots&quot;, &quot;fig_01_clusters.tiff&quot;),
+    device = &quot;tiff&quot;, units = &quot;cm&quot;, width = 24, height = 20, dpi = 300,
+    compression = &quot;lzw&quot;)
+
+ggsave(plot = three_maps, filename = here::here(&quot;plots&quot;, &quot;fig_01_clusters.png&quot;),
+    device = &quot;png&quot;, units = &quot;cm&quot;, width = 24, height = 20, dpi = 200)</code></pre>
+<pre class="r"><code>ggsave(plot = ols_coefs_up_to_m6c, filename = here::here(&quot;plots&quot;,
+    &quot;fig_02_coefs_ols_up_to_m6c.tiff&quot;), device = &quot;tiff&quot;, units = &quot;cm&quot;,
+    width = 20, height = 22, dpi = 140, compression = &quot;lzw&quot;)
+
+ggsave(plot = ols_coefs_up_to_m6c, filename = here::here(&quot;plots&quot;,
+    &quot;fig_02_coefs_ols_up_to_m6c.png&quot;), device = &quot;png&quot;, units = &quot;cm&quot;,
+    width = 20, height = 22, dpi = 140)
+
+ggsave(plot = ols_coefs_m6cg, filename = here::here(&quot;plots&quot;,
+    &quot;fig_03_ols_coefs_m6c_vs_m6_g.tiff&quot;), device = &quot;tiff&quot;, units = &quot;cm&quot;,
+    width = 20, height = 12, dpi = 140, compression = &quot;lzw&quot;)
+
+ggsave(plot = ols_coefs_m6cg, filename = here::here(&quot;plots&quot;,
+    &quot;fig_03_ols_coefs_m6c_vs_m6_g.png&quot;), device = &quot;png&quot;, units = &quot;cm&quot;,
+    width = 20, height = 12, dpi = 140)
+
+
+ggsave(plot = spat_coefs, filename = here::here(&quot;plots&quot;, &quot;fig_06_spat_coefs_compare.tiff&quot;),
+    device = &quot;tiff&quot;, units = &quot;cm&quot;, width = 20, height = 22, dpi = 140,
+    compression = &quot;lzw&quot;)
+
+ggsave(plot = spat_coefs, filename = here::here(&quot;plots&quot;, &quot;fig_06_spat_coefs_compare.png&quot;),
+    device = &quot;png&quot;, units = &quot;cm&quot;, width = 20, height = 22, dpi = 140)</code></pre>
+<pre class="r"><code>ggsave(plot = ols_summaries_plot, filename = here::here(&quot;plots&quot;,
+    &quot;fig_04_ols_summaries.tiff&quot;), device = &quot;tiff&quot;, units = &quot;cm&quot;,
+    width = 30, height = 20, dpi = 140, compression = &quot;lzw&quot;)
+
+ggsave(plot = ols_summaries_plot, filename = here::here(&quot;plots&quot;,
+    &quot;fig_04_ols_summaries.png&quot;), device = &quot;png&quot;, units = &quot;cm&quot;,
+    width = 30, height = 20, dpi = 140)</code></pre>
+<pre class="r"><code>ggsave(plot = model_summaries_best_plot, filename = here::here(&quot;plots&quot;,
+    &quot;fig_05_spatial_mod_summaries.tiff&quot;), device = &quot;tiff&quot;, units = &quot;cm&quot;,
+    width = 30, height = 20, dpi = 140, compression = &quot;lzw&quot;)
+
+ggsave(plot = model_summaries_best_plot, filename = here::here(&quot;plots&quot;,
+    &quot;fig_05_spatial_mod_summaries.png&quot;), device = &quot;png&quot;, units = &quot;cm&quot;,
+    width = 30, height = 20, dpi = 140)</code></pre>
+<pre class="r"><code>ggsave(plot = workers_correlations, filename = here::here(&quot;plots&quot;,
+    &quot;fig_07_empl_correlations.tiff&quot;), device = &quot;tiff&quot;, units = &quot;cm&quot;,
+    width = 24, height = 20, dpi = 200, compression = &quot;lzw&quot;)
+
+ggsave(plot = workers_correlations, filename = here::here(&quot;plots&quot;,
+    &quot;fig_07_empl_correlations.png&quot;), device = &quot;png&quot;, units = &quot;cm&quot;,
+    width = 24, height = 20, dpi = 200)</code></pre>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3,h4,h5",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
