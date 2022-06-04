@@ -6,6 +6,11 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/e-kotov/ru-covid19-regional-excess-mortality/HEAD?urlpath=rstudio)
+to run the analysis in the cloud (due to multiple packages used in the
+analysis, you may have to wait about 10 minutes for the container to set
+up.)
+
 This repository contains the supplementary materials (code, data and
 plots) and will be published on GitHub as part of the paper “SPATIAL
 MODELLING OF KEY REGIONAL-LEVEL FACTORS OF COVID-19 MORTALITY IN
