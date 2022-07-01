@@ -1,7 +1,7 @@
 ---
-title: "COVID Paper key plots and tables"
+title: "Spatial Modelling of Key Regiona-Level Factors of COVID-19 Mortality in Russia"
 authors:
-- name: NAMES_AND_AFFILIATIONS_WILL_BE_RELEASED_WHEN_THE_PAPER_IS_ACCEPTED
+- name: "Kotov, E., Goncharov, R., Kulchitsky, Y., Molodtsova, V., Nikitin, B."
 output:
   html_document: 
     theme: readable
@@ -34,18 +34,38 @@ editor_options:
 ```
 # Introduction
 
-Author names will be added after peer-review.
+Source code of the paper **Kotov, E., Goncharov, R., Kulchitsky, Y., Molodtsova, V., Nikitin, B. (2022). Spatial Modelling of Key Regional-Level Factors of COVID-19 Mortality in Russia. GEOGRAPHY, ENVIRONMENT, SUSTAINABILITY, 15(2), 71–83. [https://doi.org/10.24057/2071-9388-2021-076](https://doi.org/10.24057/2071-9388-2021-076)**
+
+Current data and code: [![DOI](https://zenodo.org/badge/471431313.svg)](https://zenodo.org/badge/latestdoi/471431313)
 
 All code is visible for reference.
-Some custom functions are saved in `/R/functions.R`.
+Some custom functions are saved in [/R/functions.R](https://github.com/e-kotov/ru-covid19-regional-excess-mortality/blob/main/R/functions.R).
 
-## Loading packages
+## Abstract
+
+
+Intensive socio-economic interactions are a prerequisite for the innovative development of the economy, but at the same time, they may lead to increased epidemiological risks. Persistent migration patterns, the socio-demographic composition of the population, income level, and employment structure by type of economic activity determine the intensity of socio-economic interactions and, therefore, the spread of COVID-19.
+
+We used the excess mortality (mortality from April 2020 to February 2021 compared to the five-year mean) as an indicator of deaths caused directly and indirectly by COVID-19. Similar to some other countries, due to irregularities and discrepancies in the reported infection rates, excess mortality is currently the only available and reliable indicator of the impact of the COVID-19 pandemic in Russia.
+
+We used the regional level data and fit regression models to identify the socio-economic factors that determined the impact of the pandemic. We used ordinary least squares as a baseline model and a selection of spatial models to account for spatial autocorrelation of dependent and independent variables as well as the error terms.
+
+Based on the comparison of AICc (corrected Akaike information criterion) and standard error values, it was found that SEM (spatial error model) is the best option with reliably significant coefficients. Our results show that the most critical factors that increase the excess mortality are the share of the elderly population and the employment structure represented by the share of employees in manufacturing (C economic activity according to European Skills, Competences, and Occupations (ESCO) v1 classification). High humidity as a proxy for temperature and a high number of retail locations per capita reduce the excess mortality. Except for the share of the elderly, most identified factors influence the opportunities and necessities of human interaction and the associated excess mortality.
+
+
+## Key words
+COVID-19, spatial models, socio-economic factors, climatic factors, excess mortality, Russian regions
+
+## Funding
+
+The reported study was funded by RFBR according to the research project № 20-04-60490 "Ensuring balanced regional development during a pandemic with spatially differentiated regulation of socio-economic interaction, sectoral composition of the economy and local labour markets".
+
+# Loading packages
 
 ```{r setup, include=T, cache = F, echo=TRUE, message=FALSE, warning=FALSE}
 # preinstall key packages
 if( !"renv" %in% installed.packages()[,'Package'] )  { install.packages("renv") }
 if( !"here" %in% installed.packages()[,'Package'] )  { install.packages("here") }
-if( !"rmarkdown" %in% installed.packages()[,'Package'] )  { install.packages("rmarkdown") }
 
 # install other pac
 source(here::here("R", "functions.R"))
