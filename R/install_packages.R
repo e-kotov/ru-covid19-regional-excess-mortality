@@ -4,13 +4,21 @@ if( !"rmarkdown" %in% installed.packages()[,'Package'] )  { install.packages("rm
 
 source(here::here("R", "package_list.R"))
 
-invisible({capture.output({
-  renv::install(package_list, type = "binary")
-})})
+missing_packages <- packages_to_load[!packages_to_load %in% installed.packages()]
 
-invisible({capture.output({
-  renv::install("usethis", type = "binary")
-})})
+if( length(missing_packages) > 0 ) {
+  renv::install(missing_packages)
+}
+
+
+# 
+# invisible({capture.output({
+#   renv::install(package_list, type = "binary")
+# })})
+# 
+# invisible({capture.output({
+#   renv::install("usethis", type = "binary")
+# })})
 
 
 

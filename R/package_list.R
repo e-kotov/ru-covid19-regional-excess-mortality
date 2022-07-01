@@ -1,4 +1,4 @@
-package_list <- c(
+packages_to_load <- c(
                   "gtsummary",  "jtools",  "sandwich",  "ggstance",  "broom.mixed",  "huxtable", "Hmisc", "xtable",
                   "data.table", "tidyverse",
                   "sf", "lwgeom",
@@ -9,10 +9,5 @@ package_list <- c(
                   "patchwork",
                   "tidymodels", "yardstick", "broom",
                   "rticles", "here", "knitr", "formatR", "DT",
-                  "officer", "flextable", "openxlsx"
+                  "officer", "flextable", "openxlsx", "usethis"
                   )
-
-
-
-packages_to_load <- c(package_list)
-
